@@ -31,9 +31,8 @@ public class HrApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		Smart smartConfig = config.getSalary().getSmart();
-		for (Double limit : 
-				/*smartConfig.getLimits().keySet()*/
-			Arrays.asList(smartConfig.getLimit1(), smartConfig.getLimit2(), smartConfig.getLimit3())) {
+		for (Double limit : smartConfig.getLimits().keySet()
+			/*Arrays.asList(smartConfig.getLimit1(), smartConfig.getLimit2(), smartConfig.getLimit3())*/) {
 			
 			int origSalary = 100;
 			LocalDateTime limitDay = LocalDateTime.now().minusDays((long)(limit*365));
