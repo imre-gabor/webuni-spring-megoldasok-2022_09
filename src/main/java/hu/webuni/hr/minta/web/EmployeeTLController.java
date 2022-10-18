@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import hu.webuni.hr.minta.model.Employee;
@@ -26,6 +27,22 @@ public class EmployeeTLController {
 		model.put("newEmployee", new Employee());
 		return "employees";
 	}
+	
+	@GetMapping("/employees/{id}")
+	public String editEmployee(@PathVariable long id, Map<String, Object> model) {
+		model.put("employee", allEmployees.stream()
+				.filter(e -> e.getEmployeeId() == id).findFirst().get());
+		
+		return "editEmployee";
+	}
+	
+	
+	@GetMapping("/deleteEmployee/{id}")
+	public String deleteEmployee(@PathVariable long id) {
+		allEmployees.removeIf(emp -> emp.getEmployeeId() == id);
+		return "redirect:/employees"; 
+	}
+	
 
 	@PostMapping("/employees")
 	public String addEmployee(Employee employee/*, Map<String, Object> model*/) {
@@ -37,5 +54,18 @@ public class EmployeeTLController {
 		//return "employees";
 		return "redirect:employees";
 	}
+	
+	@PostMapping("/updateEmployee")
+	public String updateEmployee(Employee employee) {
+		for(int i=0; i< allEmployees.size(); i++) {
+			if(allEmployees.get(0).getEmployeeId() == employee.getEmployeeId()) {
+				allEmployees.set(i, employee);
+				break;
+			}
+		}
+		
+		return "redirect:employees";
+	}
+
 
 }
