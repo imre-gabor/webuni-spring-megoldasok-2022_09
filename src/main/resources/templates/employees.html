@@ -22,18 +22,18 @@
 		<tbody>
 			<tr th:each="employee : ${employees}">
 				<td th:text="${employee.employeeId}">Id</td>
-				<td th:text="${employee.name}">Name</td>
+				<td><a th:href="@{/employees/{id}(id = ${employee.employeeId})}" th:text="${employee.name}">Name</a></td>
 				<td th:text="${employee.jobTitle}">Title</td>
 				<td th:text="${employee.salary}">Salary</td>
 				<td th:text="${employee.dateOfStartWork}">EntryDate</td>
+				<td><a th:href="@{/deleteEmployee/{id}(id=${employee.employeeId})}">Delete</a></td>
 			</tr>
 		</tbody>
 	</table>
-	<br>
-	<br>
-
+	<br><br>
+	
 	<form th:action="@{/employees}" method="post" th:object="${newEmployee}">
-		Id: <input th:field="*{employeeId}" /><br> 
+		Id: <input th:field="*{employeeId}" /><br>
 		Name: <input th:field="*{name}" /><br>
 		Title: <input th:field="*{jobTitle}" /><br>
 		Salary: <input th:field="*{salary}" /><br>
