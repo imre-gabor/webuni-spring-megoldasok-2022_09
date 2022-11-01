@@ -1,18 +1,27 @@
 package hu.webuni.hr.minta.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+@Entity
 public class Company {
 	
+	@Id
+	@GeneratedValue
 	private Long id;
 	private int registrationNumber;
 	private String name;
 	private String address;
 	
+	@OneToMany(mappedBy = "company")
 	private List<Employee> employees;
 	
-	public Company() {
-		
+	public Company() {		
 	}
 
 	public Company(Long id, int registrationNumber, String name, String adress, List<Employee> employees) {
@@ -53,6 +62,23 @@ public class Company {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public List<Employee> getEmployees() {
+		return employees;
+	}
+
+	public void setEmployees(List<Employee> employees) {
+		this.employees = employees;
+	}
+	
+	public void addEmployee(Employee employee) {
+		if(this.employees == null)
+			this.employees = new ArrayList<>();
+		
+		employee.setCompany(this);	//a DB-be ebből az irányból íródik be
+		this.employees.add(employee);
+		
 	}
 
 }

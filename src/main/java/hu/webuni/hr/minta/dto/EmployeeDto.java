@@ -2,11 +2,19 @@ package hu.webuni.hr.minta.dto;
 
 import java.time.LocalDateTime;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Past;
+
 public class EmployeeDto {
 	private long id;
+	@NotEmpty
 	private String name;
+	@NotEmpty
 	private String title;
+	@Min(0)
 	private int salary;
+	@Past
 	private LocalDateTime entryDate;
 
 	public EmployeeDto() {

@@ -30,6 +30,7 @@ public class EmployeeControllerIT {
 		List<EmployeeDto> employeesBefore = getAllEmployees();
 
 		EmployeeDto newEmployee = new EmployeeDto(0L, "ABC", "student", 200000, LocalDateTime.of(2019, 01, 01, 8, 0, 0));
+		
 		saveEmployee(newEmployee)
 		.expectStatus()
 		.isOk();
@@ -67,11 +68,15 @@ public class EmployeeControllerIT {
 		EmployeeDto newEmployee = new EmployeeDto(0L, "ABC", "student", 200000, LocalDateTime.of(2019, 01, 01, 8, 0, 0));
 		EmployeeDto savedEmployee = saveEmployee(newEmployee)
 				.expectStatus().isOk()
-				.expectBody(EmployeeDto.class).returnResult().getResponseBody();
+				.expectBody(EmployeeDto.class)
+				.returnResult()
+				.getResponseBody();
 		
 		List<EmployeeDto> employeesBefore = getAllEmployees();
 		savedEmployee.setName("modified");
-		modifyEmployee(savedEmployee).expectStatus().isOk();
+		modifyEmployee(savedEmployee)
+		.expectStatus()
+		.isOk();
 
 		List<EmployeeDto> employeesAfter = getAllEmployees();
 
@@ -93,7 +98,9 @@ public class EmployeeControllerIT {
 		List<EmployeeDto> employeesBefore = getAllEmployees();
 		EmployeeDto invalidEmployee = newInvalidEmployee();
 		invalidEmployee.setId(savedEmployee.getId());
-		modifyEmployee(invalidEmployee).expectStatus().isBadRequest();
+		modifyEmployee(invalidEmployee)
+		.expectStatus()
+		.isBadRequest();
 
 		List<EmployeeDto> employeesAfter = getAllEmployees();
 
