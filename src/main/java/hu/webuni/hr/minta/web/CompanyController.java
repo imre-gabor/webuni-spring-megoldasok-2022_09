@@ -21,7 +21,9 @@ import hu.webuni.hr.minta.dto.CompanyDto;
 import hu.webuni.hr.minta.dto.EmployeeDto;
 import hu.webuni.hr.minta.mapper.CompanyMapper;
 import hu.webuni.hr.minta.mapper.EmployeeMapper;
+import hu.webuni.hr.minta.model.AverageSalaryByPosition;
 import hu.webuni.hr.minta.model.Company;
+import hu.webuni.hr.minta.repository.CompanyRepository;
 import hu.webuni.hr.minta.service.CompanyService;
 
 
@@ -37,11 +39,18 @@ public class CompanyController {
 	private CompanyMapper companyMapper;
 	@Autowired
 	private EmployeeMapper employeeMapper;
+	@Autowired
+	private CompanyRepository companyRepository;
 	
 	
 	@GetMapping
 	public List<CompanyDto> getCompanies(@RequestParam Optional<Boolean> full){
 		List<Company> employees = companyService.findAll();
+		return mapCompanies(employees, full);
+	}
+
+
+	private List<CompanyDto> mapCompanies(List<Company> employees, Optional<Boolean> full) {
 		if(full.orElse(false))
 			return companyMapper.companiesToDtos(employees);
 		else
@@ -113,4 +122,21 @@ public class CompanyController {
 	}
 
 	
+    @GetMapping(params = "aboveSalary")
+    public List<CompanyDto> getCompaniesAboveSalary(@RequestParam int aboveSalary, @RequestParam Optional<Boolean> full) {
+        List<Company> filteredCompanies = companyRepository.findByEmployeeWithSalaryHigherThan(aboveSalary);
+        return mapCompanies(filteredCompanies, full);
+    }
+    
+    @GetMapping(params = "aboveEmployeeCount")
+    public List<CompanyDto> getCompaniesAboveEmployeeCount(@RequestParam int aboveEmployeeCount, @RequestParam Optional<Boolean> full) {
+        List<Company> filteredCompanies = companyRepository.findByEmployeeCountHigherThan(aboveEmployeeCount);
+        return mapCompanies(filteredCompanies, full);
+    }
+	
+	
+	@GetMapping("/{id}/salaryStats")
+	public List<AverageSalaryByPosition> getSalaryStatsById(@PathVariable long id) {
+		return companyRepository.findAverageSalariesByPosition(id);
+	}
 }
