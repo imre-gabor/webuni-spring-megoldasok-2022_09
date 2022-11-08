@@ -1,5 +1,7 @@
 package hu.webuni.hr.minta.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 
 import hu.webuni.hr.minta.model.Employee;
@@ -27,6 +29,28 @@ public class SalaryService {
 	public void setNewSalary(Employee employee) {
 		int newSalary = employee.getSalary() * (100 + employeeService.getPayRaisePercent(employee)) / 100;
 		employee.setSalary(newSalary);
+	}
+	
+	@Transactional
+	public void raiseMinSalary(String positionName, int minSalary) {
+		//1. megoldás: kevésbé hatékony, mert egyesével fut majd UPDATE a releváns employee-kra
+//		positionRepository.findByName(positionName)
+//		.forEach(p -> {
+//			p.setMinSalary(minSalary);
+//			p.getEmployees().forEach(e ->{
+//				if(e.getSalary() < minSalary)
+//					e.setSalary(minSalary);
+//			});
+//		});
+	}
+	
+	@Transactional
+	public void raiseMinSalary(long companyId, String position, int minSalary) {
+		
+		positionDetailsByCompanyRepository.findByPositionNameAndCompanyId(position, companyId)
+		.forEach(pd -> pd.setMinSalary(minSalary));
+		
+		employeeRepository.updateSalaries(companyId, position, minSalary);		
 	}
 
 }
