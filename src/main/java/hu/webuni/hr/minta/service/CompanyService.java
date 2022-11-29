@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hu.webuni.hr.minta.model.Company;
 import hu.webuni.hr.minta.model.Employee;
@@ -19,6 +20,9 @@ public class CompanyService {
 	
 	@Autowired
 	private EmployeeRepository employeeRepository;
+	
+	@Autowired
+	private EmployeeService employeeService;
 	
 
 	public Company save(Company company) {		
@@ -43,22 +47,26 @@ public class CompanyService {
 		companyRepository.deleteById(id);
 	}
 	
+	@Transactional
 	public Company addEmployee(long companyId, Employee employee) {
-		Company company = companyRepository.findById(companyId).get();
-		company.addEmployee(employee);
-		employeeRepository.save(employee);
+		Company company = companyRepository.findByIdWithEmployees(companyId).get();
+		
+		Employee managedEmployee = employeeService.save(employee);
+		company.addEmployee(managedEmployee);
 		return company;
 	}
 	
+	@Transactional
 	public Company deleteEmployee(long companyId, long employeeId) {
 		Company company = companyRepository.findById(companyId).get();
 		Employee employee = employeeRepository.findById(employeeId).get();
 		employee.setCompany(null);
 		company.getEmployees().remove(employee);
-		employeeRepository.save(employee);
+		//employeeRepository.save(employee); --> @Transactional miatt felesleges
 		return company;
 	}
 	
+	@Transactional
 	public Company replaceEmployees(long companyId, List<Employee> employees) {
 		Company company = companyRepository.findById(companyId).get();
 		
@@ -66,7 +74,7 @@ public class CompanyService {
 		company.getEmployees().clear();
 
 		employees.forEach(emp -> {
-			Employee savedEmployee = employeeRepository.save(emp);
+			Employee savedEmployee = employeeService.save(emp);
 			company.addEmployee(savedEmployee);			
 		});
 		return company;

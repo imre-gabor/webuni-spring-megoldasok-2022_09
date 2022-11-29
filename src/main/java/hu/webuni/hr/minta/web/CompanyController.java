@@ -45,7 +45,10 @@ public class CompanyController {
 	
 	@GetMapping
 	public List<CompanyDto> getCompanies(@RequestParam Optional<Boolean> full){
-		List<Company> employees = companyService.findAll();
+		List<Company> employees = 
+			full.orElse(false)				
+			 ? companyRepository.findAllWithEmployees()
+			:companyService.findAll();
 		return mapCompanies(employees, full);
 	}
 
@@ -73,7 +76,7 @@ public class CompanyController {
 
 	@GetMapping("/{id}")
 	public CompanyDto getById(@PathVariable long id, @RequestParam Optional<Boolean> full) {
-		Company company = findByIdOrThrow(id);
+		Company company = findByIdOrThrow(full, id);
 		if (full.orElse(false))
 			return companyMapper.companyToDto(company);
 		else
@@ -81,8 +84,15 @@ public class CompanyController {
 	}
 
 
-	private Company findByIdOrThrow(long id) {
-		return companyService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+	private Company findByIdOrThrow(Optional<Boolean> full, long id) {
+		
+		Optional<Company> companyOpt = 
+				full.orElse(false)
+				? companyRepository.findByIdWithEmployees(id)
+				:companyService.findById(id);
+		
+		
+		return companyOpt.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 	}
 	
 	@PostMapping
