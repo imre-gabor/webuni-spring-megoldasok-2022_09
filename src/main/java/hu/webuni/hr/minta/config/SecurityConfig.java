@@ -3,7 +3,6 @@ package hu.webuni.hr.minta.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,35 +15,37 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import hu.webuni.hr.minta.security.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 	
 	@Autowired
 	UserDetailsService userDetailsService;
 	
-//	@Autowired
-//	JwtAuthFilter jwtAuthFilter;
-//	
+	@Autowired
+	JwtAuthFilter jwtAuthFilter;
+	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.authenticationProvider(authenticationProvider());
-//		auth.inMemoryAuthentication()
-//			.passwordEncoder(passwordEncoder())
-//			.withUser("user").authorities("user").password(passwordEncoder().encode("pass"))
-//			.and()
-//			.withUser("admin").authorities("user", "admin").password(passwordEncoder().encode("pass"));
+	
+	@Bean
+	public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+		AuthenticationManagerBuilder authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+		return authManagerBuilder.authenticationProvider(authenticationProvider()).build();
 	}
-
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		
 		http
 			.httpBasic()
 			.and()
@@ -52,11 +53,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.authorizeRequests()
-//			.antMatchers("/api/login/**").permitAll()
+			.antMatchers("/api/login/**").permitAll()
 			.antMatchers("/api/holidayrequests/**").authenticated()			
-			.anyRequest().permitAll();
+			.anyRequest().authenticated();
 		
-//		http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+		return http.build();
 	}
 
 	@Bean
@@ -65,14 +67,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
 		daoAuthenticationProvider.setUserDetailsService(userDetailsService);
 		return daoAuthenticationProvider;
-	}
-
-	@Override
-	@Bean
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-	}
-	
-	
+	}	
 	
 }

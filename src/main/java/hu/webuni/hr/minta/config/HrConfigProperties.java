@@ -1,5 +1,6 @@
 package hu.webuni.hr.minta.config;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -19,6 +20,41 @@ public class HrConfigProperties {
 
 	public void setSalary(Salary salary) {
 		this.salary = salary;
+	}
+	
+	private JwtData jwtData = new JwtData();
+	
+	public static class JwtData{
+		private String issuer;
+		private String secret;
+		private String alg;
+		private Duration duration;
+		public String getIssuer() {
+			return issuer;
+		}
+		public void setIssuer(String issuer) {
+			this.issuer = issuer;
+		}
+		public String getSecret() {
+			return secret;
+		}
+		public void setSecret(String secret) {
+			this.secret = secret;
+		}
+		public String getAlg() {
+			return alg;
+		}
+		public void setAlg(String alg) {
+			this.alg = alg;
+		}
+		public Duration getDuration() {
+			return duration;
+		}
+		public void setDuration(Duration duration) {
+			this.duration = duration;
+		}
+		
+		
 	}
 
 	public static class Salary {
@@ -124,6 +160,14 @@ public class HrConfigProperties {
 			this.limits = limits;
 		}
 
+	}
+
+	public JwtData getJwtData() {
+		return jwtData;
+	}
+
+	public void setJwtData(JwtData jwtData) {
+		this.jwtData = jwtData;
 	}
 
 }
